@@ -1,0 +1,15 @@
+# Archivos temporales de Claude Code
+tmpclaude-*
+
+# Python
+__pycache__/
+*.py[cod]
+*.env
+
+# Entornos virtuales
+venv/
+.venv/
+
+# IDEs
+.vscode/
+.idea/
