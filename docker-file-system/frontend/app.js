@@ -8,28 +8,43 @@ document.getElementById("upload-btn").addEventListener("click", async () => {
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await fetch(`${API_URL}/upload`, {
-    method: "POST",
-    body: formData,
-  });
+  try {
+    const response = await fetch(`${API_URL}/upload`, {
+      method: "POST",
+      body: formData,
+    });
 
-  const result = await response.json();
-  console.log("Upload result:", result);
-  loadFiles();
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.detail || "No se pudo procesar el archivo");
+    }
+
+    console.log("Upload result:", result);
+    renderUploadResult(result);
+  } catch (error) {
+    const list = document.getElementById("file-list");
+    list.innerHTML = `<li>Error: ${error.message}</li>`;
+  }
 });
 
-async function loadFiles() {
-  const response = await fetch(`${API_URL}/files`);
-  const files = await response.json();
-
+function renderUploadResult(result) {
   const list = document.getElementById("file-list");
   list.innerHTML = "";
 
-  files.forEach((f) => {
+  const summary = document.createElement("li");
+  summary.textContent = `Archivo: ${result.filename} | Lineas: ${result.total_lines} | Fragmentos: ${result.num_chunks}`;
+  list.appendChild(summary);
+
+  (result.chunk_sizes || []).forEach((size, index) => {
     const li = document.createElement("li");
-    li.innerHTML = `<a href="${API_URL}/download/${f.id}" download="${f.name}">${f.name}</a>`;
+    li.textContent = `Fragmento ${index + 1}: ${size} lineas`;
+    list.appendChild(li);
+  });
+
+  (result.worker_responses || []).forEach((workerResponse, index) => {
+    const li = document.createElement("li");
+    const detail = workerResponse.detail || "Procesado";
+    li.textContent = `Worker ${index + 1} (${workerResponse.status}): ${detail}`;
     list.appendChild(li);
   });
 }
-
-loadFiles();

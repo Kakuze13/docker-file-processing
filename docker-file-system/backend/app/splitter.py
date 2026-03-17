@@ -16,8 +16,25 @@ def split_lines(lines: List[str], num_chunks: int = 5) -> List[List[str]]:
         - Manejar archivos cuyo total de líneas no sea divisible exactamente.
         - Agregar validación: archivo vacío, num_chunks <= 0, etc.
     """
-    chunk_size = len(lines) // num_chunks
-    return [lines[i * chunk_size:(i + 1) * chunk_size] for i in range(num_chunks)]
+    if num_chunks <= 0:
+        raise ValueError("num_chunks debe ser mayor que 0")
+
+    if not lines:
+        return [[] for _ in range(num_chunks)]
+
+    base_size = len(lines) // num_chunks
+    remainder = len(lines) % num_chunks
+
+    chunks: List[List[str]] = []
+    start = 0
+    for index in range(num_chunks):
+        # Reparte las líneas sobrantes entre los primeros fragmentos.
+        current_size = base_size + (1 if index < remainder else 0)
+        end = start + current_size
+        chunks.append(lines[start:end])
+        start = end
+
+    return chunks
 
 
 def read_lines(content: str) -> List[str]:
