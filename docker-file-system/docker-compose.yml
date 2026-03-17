@@ -8,14 +8,20 @@ services:
     depends_on:
       - db
     environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/filesdb
+      - DB_HOST=db
+      - DB_NAME=sistemas_distribuidos
+      - DB_USER=root
+      - DB_PASSWORD=root
 
   worker:
     build: ./workers
     depends_on:
       - db
     environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/filesdb
+      - DB_HOST=db
+      - DB_NAME=sistemas_distribuidos
+      - DB_USER=root
+      - DB_PASSWORD=root
 
   frontend:
     image: nginx:alpine
@@ -25,14 +31,15 @@ services:
       - ./frontend:/usr/share/nginx/html
 
   db:
-    image: postgres:15
+    image: mysql:8.0
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: filesdb
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sistemas_distribuidos
+    ports:
+      - "3306:3306"
     volumes:
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/mysql
 
 volumes:
   db_data:
