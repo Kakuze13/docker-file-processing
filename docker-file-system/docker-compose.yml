@@ -1,37 +1,12 @@
 version: '3.8'
 
 services:
-  backend:
-    build: ./backend
-    ports:
-      - "5000:5000"
-    depends_on:
-      - db
-    environment:
-      - DB_HOST=db
-      - DB_NAME=sistemas_distribuidos
-      - DB_USER=root
-      - DB_PASSWORD=root
 
-  worker:
-    build: ./workers
-    depends_on:
-      - db
-    environment:
-      - DB_HOST=db
-      - DB_NAME=sistemas_distribuidos
-      - DB_USER=root
-      - DB_PASSWORD=root
-
-  frontend:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-    volumes:
-      - ./frontend:/usr/share/nginx/html
-
+  # ── Base de datos MySQL ────────────────────────────────────────────────────
   db:
     image: mysql:8.0
+    container_name: mysql_db
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: sistemas_distribuidos
@@ -40,6 +15,113 @@ services:
     volumes:
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
       - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ── Backend Python (FastAPI) ───────────────────────────────────────────────
+  backend:
+    build: ./backend
+    container_name: backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_NAME: sistemas_distribuidos
+      DB_USER: root
+      DB_PASSWORD: root
+
+  # ── Frontend (Nginx sirviendo archivos estáticos) ──────────────────────────
+  frontend:
+    image: nginx:alpine
+    container_name: frontend
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
+
+  # ── Workers (5 contenedores idénticos, cada uno con su WORKER_ID) ──────────
+  worker1:
+    build: ./workers
+    container_name: worker1
+    environment:
+      WORKER_ID: worker1
+      DB_HOST: db
+      DB_NAME: sistemas_distribuidos
+      DB_USER: root
+      DB_PASSWORD: root
+    ports:
+      - "6001:6000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  worker2:
+    build: ./workers
+    container_name: worker2
+    environment:
+      WORKER_ID: worker2
+      DB_HOST: db
+      DB_NAME: sistemas_distribuidos
+      DB_USER: root
+      DB_PASSWORD: root
+    ports:
+      - "6002:6000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  worker3:
+    build: ./workers
+    container_name: worker3
+    environment:
+      WORKER_ID: worker3
+      DB_HOST: db
+      DB_NAME: sistemas_distribuidos
+      DB_USER: root
+      DB_PASSWORD: root
+    ports:
+      - "6003:6000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  worker4:
+    build: ./workers
+    container_name: worker4
+    environment:
+      WORKER_ID: worker4
+      DB_HOST: db
+      DB_NAME: sistemas_distribuidos
+      DB_USER: root
+      DB_PASSWORD: root
+    ports:
+      - "6004:6000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  worker5:
+    build: ./workers
+    container_name: worker5
+    environment:
+      WORKER_ID: worker5
+      DB_HOST: db
+      DB_NAME: sistemas_distribuidos
+      DB_USER: root
+      DB_PASSWORD: root
+    ports:
+      - "6005:6000"
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   db_data:
