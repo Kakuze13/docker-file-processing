@@ -1,16 +1,13 @@
--- Tabla de archivos
-CREATE TABLE IF NOT EXISTS files (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR(255) NOT NULL,
-    size BIGINT NOT NULL,
-    total_chunks INT NOT NULL,
-    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- Crear la base de datos (si no existe)
+CREATE DATABASE IF NOT EXISTS sistemas_distribuidos;
 
--- Tabla de chunks
-CREATE TABLE IF NOT EXISTS chunks (
-    file_id UUID REFERENCES files(id) ON DELETE CASCADE,
-    chunk_id INT NOT NULL,
-    data TEXT NOT NULL,
-    PRIMARY KEY (file_id, chunk_id)
+-- Usar esa base de datos
+USE sistemas_distribuidos;
+
+-- Crear la tabla para guardar las líneas procesadas
+CREATE TABLE IF NOT EXISTS lineas_procesadas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    worker_id VARCHAR(50) NOT NULL,
+    contenido_linea TEXT NOT NULL,
+    fecha_procesamiento TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
