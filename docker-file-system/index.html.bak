@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Docker File System</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Sistema de Archivos Distribuido</h1>
+
+    <section id="upload-section">
+      <h2>Subir Archivo</h2>
+      <input type="file" id="file-input" />
+      <button id="upload-btn">Subir</button>
+    </section>
+
+    <section id="files-section">
+      <h2>Archivos Almacenados</h2>
+      <ul id="file-list"></ul>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
